@@ -1,0 +1,7 @@
+
+You can add Arduino libraries on github here.
+
+$ cd ~/Documents/Arduino/libraries
+$ git submodule add https://github.com/hanyazou/BMI160-Arduino
+$ git commit -m "Add BMI160-Arduino module"
+$ git push
