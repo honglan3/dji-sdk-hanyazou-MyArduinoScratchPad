@@ -1,0 +1,3 @@
+[submodule "libraries/gpio_expander"]
+	path = libraries/gpio_expander
+	url = https://github.com/hanyazou/gpio_expander
