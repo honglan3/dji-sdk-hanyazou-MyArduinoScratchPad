@@ -1,3 +1,6 @@
 [submodule "libraries/gpio_expander"]
 	path = libraries/gpio_expander
 	url = https://github.com/hanyazou/gpio_expander
+[submodule "libraries/BMI160-Arduino"]
+	path = libraries/BMI160-Arduino
+	url = https://github.com/hanyazou/BMI160-Arduino
