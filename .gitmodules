@@ -4,3 +4,9 @@
 [submodule "libraries/BMI160-Arduino"]
 	path = libraries/BMI160-Arduino
 	url = https://github.com/hanyazou/BMI160-Arduino
+[submodule "libraries/SparkFun_LIS3DH_Arduino_Library"]
+	path = libraries/SparkFun_LIS3DH_Arduino_Library
+	url = https://github.com/sparkfun/SparkFun_LIS3DH_Arduino_Library
+[submodule "libraries/SparkFun_LSM6DS3_Arduino_Library"]
+	path = libraries/SparkFun_LSM6DS3_Arduino_Library
+	url = https://github.com/sparkfun/SparkFun_LSM6DS3_Arduino_Library
