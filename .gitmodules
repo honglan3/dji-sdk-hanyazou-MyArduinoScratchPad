@@ -10,3 +10,6 @@
 [submodule "libraries/SparkFun_LSM6DS3_Arduino_Library"]
 	path = libraries/SparkFun_LSM6DS3_Arduino_Library
 	url = https://github.com/sparkfun/SparkFun_LSM6DS3_Arduino_Library
+[submodule "libraries/Adafruit_FeatherOLED"]
+	path = libraries/Adafruit_FeatherOLED
+	url = https://github.com/adafruit/Adafruit_FeatherOLED
