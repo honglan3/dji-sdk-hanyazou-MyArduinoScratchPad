@@ -13,3 +13,6 @@
 [submodule "libraries/Adafruit_FeatherOLED"]
 	path = libraries/Adafruit_FeatherOLED
 	url = https://github.com/adafruit/Adafruit_FeatherOLED
+[submodule "libraries/Adafruit-GFX-Library"]
+	path = libraries/Adafruit-GFX-Library
+	url = https://github.com/adafruit/Adafruit-GFX-Library
