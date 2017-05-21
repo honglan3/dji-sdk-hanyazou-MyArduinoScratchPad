@@ -25,3 +25,6 @@
 [submodule "libraries/Adafruit-MAX31855-library"]
 	path = libraries/Adafruit-MAX31855-library
 	url = https://github.com/adafruit/Adafruit-MAX31855-library.git
+[submodule "libraries/Adafruit_NeoPixel"]
+	path = libraries/Adafruit_NeoPixel
+	url = https://github.com/adafruit/Adafruit_NeoPixel
