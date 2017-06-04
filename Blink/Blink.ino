@@ -21,12 +21,20 @@
 */
 
 //#define HAVE_SERIAL1
+#if 1
+#undef LED_BUILTIN
+#define LED_BUILTIN 2
+#endif
 
 // the setup function runs once when you press reset or power the board
 void setup() {
+  //delay(1000);
   Serial.begin(9600);
+  //Serial.begin();
   while (!Serial);
   Serial.println("Hello!");
+  Serial.print("LED_BUILTIN=");
+  Serial.println(LED_BUILTIN);
 #ifdef HAVE_SERIAL1
   Serial1.begin(9600);
   Serial1.println("Hello!");
@@ -42,7 +50,7 @@ void loop() {
 #ifdef HAVE_SERIAL1
   Serial1.println("running... on serial 1");
 #endif
-digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(1000);                       // wait for a second
   digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
   delay(1000);                       // wait for a second
