@@ -28,3 +28,6 @@
 [submodule "libraries/Adafruit_NeoPixel"]
 	path = libraries/Adafruit_NeoPixel
 	url = https://github.com/adafruit/Adafruit_NeoPixel
+[submodule "libraries/Adafruit_ILI9341"]
+	path = libraries/Adafruit_ILI9341
+	url = https://github.com/adafruit/Adafruit_ILI9341.git
