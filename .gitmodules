@@ -34,3 +34,6 @@
 [submodule "libraries/TFTLCD-Library"]
 	path = libraries/TFTLCD-Library
 	url = https://github.com/adafruit/TFTLCD-Library.git
+[submodule "libraries/Adafruit_ILI9340"]
+	path = libraries/Adafruit_ILI9340
+	url = https://github.com/adafruit/Adafruit_ILI9340.git
