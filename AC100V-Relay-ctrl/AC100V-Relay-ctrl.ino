@@ -14,12 +14,18 @@ Adafruit_MAX31855 thermocouple(MAXCS);
 #define STAT_RAMP 1
 #define STAT_SOAK 2
 #define STAT_REFLOW 3
-#define STAT_COOL 4
+#define STAT_REFLOW2 4
+#define STAT_COOL 5
 
 int state = STAT_INIT;
 int count = 0;
 int target = 150;
 int target2 = 190;
+int target3 = 180;
+int upward_inertia = 12;
+int soaking_denominator = 2;
+int soaking_start;
+int soaking_duration = 90;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -38,12 +44,13 @@ void setup() {
   Serial.print("Internal Temp = ");
   Serial.println(thermocouple.readInternal());
 
-  state = STAT_RAMP;
+  state = STAT_INIT;
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  bool on;
+  bool on = false;
+  bool fan_on = false;
 
   if (500 <= count)
     return;
@@ -57,22 +64,30 @@ void loop() {
     on = false;
   } else {
     switch (state) {
+    case STAT_INIT:
+      //Serial.print("0 "); 
+      if (count < 10) {
+        on = false;
+      } else {
+        on = true;
+        state = STAT_RAMP;
+      }
+      break;
     case STAT_RAMP:
       //Serial.print("10 "); 
-      if (c < target) {
+      if (c < target - upward_inertia) {
         on = true;
       } else {
         on = false;
         state = STAT_SOAK;
+        soaking_start = count;
       }
       break;
     case STAT_SOAK:
       //Serial.print("20 "); 
-      if (c < target) {
-        on = true;
+      on = true;
+      if (soaking_start + soaking_duration < count) {
         state = STAT_REFLOW;
-      } else {
-        on = false;
       }
       break;
     case STAT_REFLOW:
@@ -81,30 +96,37 @@ void loop() {
         on = true;
       } else {
         on = false;
+        state = STAT_REFLOW2;
+      }
+      break;
+    case STAT_REFLOW2:
+      //Serial.print("30 "); 
+      on = false;
+      if (c < target3) {
         state = STAT_COOL;
       }
       break;
     case STAT_COOL:
       //Serial.print("40 "); 
       on = false;
+      fan_on = true;
       break;
     }
   }
-#if 0
-  Serial.print("C = "); 
-  Serial.print(c);
-  Serial.print(" "); 
-  Serial.print(on ? "ON" : "OFF");
-  Serial.println(""); 
-#else
+
+  if (state == STAT_SOAK && on) {
+    on = (count % soaking_denominator) == 0 ? true : false;
+  }
+
   Serial.print(c);
   Serial.print(" ");
   Serial.print(on ? "15 " : "5 ");
+  Serial.print(" ");
+  Serial.print(fan_on ? "30 " : "20 ");
   Serial.print(target);
   Serial.print(" ");
   Serial.print(target2);
   Serial.println("");
-#endif
 
   if (on) {
     digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
