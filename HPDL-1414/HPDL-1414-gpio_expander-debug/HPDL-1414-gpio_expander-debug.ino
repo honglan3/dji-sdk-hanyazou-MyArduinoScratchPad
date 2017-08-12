@@ -8,7 +8,7 @@ int nunits = 0;
 
 void setup(){
   while (!Serial);
-  Serial.begin(38400);
+  Serial.begin(9600);
   Serial.println("HPDL-1414 test...");
 
   Wire.begin();
@@ -26,14 +26,6 @@ void setup(){
       nunits++;
     }
   }
-
-  hpdl1414_put(17, 40);
-  hpdl1414_put(18, 41);
-  hpdl1414_put(19, 42);
-  hpdl1414_put(20, 43);
-  hpdl1414_put(21, 44);
-
-
 }
 
 void hpdl1414_put(int pos, uint8_t data)
