@@ -37,3 +37,6 @@
 [submodule "libraries/TFTLCD-Library"]
 	path = libraries/TFTLCD-Library
 	url = https://github.com/hanyazou/TFTLCD-Library
+[submodule "libraries/Adafruit_FT6206_Library"]
+	path = libraries/Adafruit_FT6206_Library
+	url = https://github.com/adafruit/Adafruit_FT6206_Library
