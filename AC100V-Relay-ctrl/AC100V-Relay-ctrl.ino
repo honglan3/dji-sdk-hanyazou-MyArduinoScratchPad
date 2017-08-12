@@ -7,6 +7,7 @@
 #include "Adafruit_MAX31855.h"
 
 #define AC100RELAY 5
+#define FANCTRL 9
 #define MAXCS   10
 Adafruit_MAX31855 thermocouple(MAXCS);
 
@@ -36,6 +37,7 @@ void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(AC100RELAY, OUTPUT);
+  pinMode(FANCTRL, OUTPUT);
 
   // wait for MAX chip to stabilize
   delay(500);
@@ -52,13 +54,22 @@ void loop() {
   bool on = false;
   bool fan_on = false;
 
-  if (500 <= count)
+  if (500 <= count) {
+    delay(1000);
     return;
+  }
+
   count++;
   //Serial.print(count);
   //Serial.print(" "); 
 
-  double c = thermocouple.readCelsius();
+  double c = 0;
+  for (int i = 0; i < 10; i++) {
+    c += thermocouple.readCelsius();
+    delay(100);  
+  }
+  c /= 10;
+
   if (isnan(c)) {
     Serial.println("Something wrong with thermocouple!");
     on = false;
@@ -118,6 +129,7 @@ void loop() {
     on = (count % soaking_denominator) == 0 ? true : false;
   }
 
+#if 1
   Serial.print(c);
   Serial.print(" ");
   Serial.print(on ? "15 " : "5 ");
@@ -126,6 +138,17 @@ void loop() {
   Serial.print(target);
   Serial.print(" ");
   Serial.print(target2);
+#endif
+#if 0
+  Serial.print(" ");
+  Serial.print(analogRead(A0)*5.0/1024*10);
+  Serial.print(" ");
+  Serial.print(analogRead(A1)*5.0/1024*10);
+  Serial.print(" ");
+  Serial.print(analogRead(A2)*5.0/1024*10);
+  Serial.print(" ");
+  Serial.print(analogRead(A3)*5.0/1024*10);
+#endif
   Serial.println("");
 
   if (on) {
@@ -136,6 +159,13 @@ void loop() {
     digitalWrite(AC100RELAY, LOW);
   }
 
-  delay(1000);
+  // XXXX
+  fan_on = (count/10)%2;
+
+  if (fan_on) {
+    digitalWrite(FANCTRL, HIGH);
+  } else {
+    digitalWrite(FANCTRL, LOW);
+  }
 }
 
