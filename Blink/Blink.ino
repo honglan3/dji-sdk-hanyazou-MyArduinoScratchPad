@@ -21,9 +21,12 @@
 */
 
 //#define HAVE_SERIAL1
+//#define HAVE_SERIAL2
 #if 1
 #undef LED_BUILTIN
-#define LED_BUILTIN 2
+#define LED_BUILTIN 2  // for SAM D11C
+//#define LED_BUILTIN 3  // for Hanyaduino
+//#define LED_BUILTIN 27  // for SAMD21E breakout Rev 0.5
 #endif
 
 // the setup function runs once when you press reset or power the board
@@ -39,6 +42,10 @@ void setup() {
   Serial1.begin(9600);
   Serial1.println("Hello!");
 #endif
+#ifdef HAVE_SERIAL2
+  Serial2.begin(9600);
+  Serial2.println("Hello!");
+#endif
 
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
@@ -49,6 +56,9 @@ void loop() {
   Serial.println("running... on serial 0");
 #ifdef HAVE_SERIAL1
   Serial1.println("running... on serial 1");
+#endif
+#ifdef HAVE_SERIAL2
+  Serial2.println("running... on serial 2");
 #endif
   digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(1000);                       // wait for a second
