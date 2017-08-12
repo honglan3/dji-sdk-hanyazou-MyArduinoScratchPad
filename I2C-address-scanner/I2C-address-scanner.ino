@@ -9,14 +9,17 @@
 #include <Wire.h>
 
 void setup() {
-  Serial.begin (38400);
+  Serial.begin (9600);
+  while (!Serial);
 
   // Leonardo: wait for serial port to connect
-  while (!Serial) 
+  //while (!Serial) 
     {
     }
+}  // end of setup
 
-  Serial.println ();
+void loop() {
+    Serial.println ();
   Serial.println ("I2C scanner. Scanning ...");
   byte count = 0;
   
@@ -39,7 +42,6 @@ void setup() {
   Serial.print ("Found ");
   Serial.print (count, DEC);
   Serial.println (" device(s).");
-}  // end of setup
-
-void loop() {}
+  delay(1 * 1000);
+}
 
