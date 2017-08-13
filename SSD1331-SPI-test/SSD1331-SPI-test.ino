@@ -22,7 +22,7 @@
 #define mosi 11
 #define cs   10
 #define rst  9
-#define dc   8
+#define dc   7
 
 
 // Color definitions
@@ -40,13 +40,13 @@
 #include <SPI.h>
 
 // Option 1: use any pins but a little slower
-Adafruit_SSD1331 display = Adafruit_SSD1331(cs, dc, mosi, sclk, rst);  
+//Adafruit_SSD1331 display = Adafruit_SSD1331(cs, dc, mosi, sclk, rst);  
 
 // Option 2: must use the hardware SPI pins 
 // (for UNO thats sclk = 13 and sid = 11) and pin 10 must be 
 // an output. This is much faster - also required if you want
 // to use the microSD card (see the image drawing example)
-//Adafruit_SSD1331 display = Adafruit_SSD1331(cs, dc, rst);
+Adafruit_SSD1331 display = Adafruit_SSD1331(cs, dc, rst);
 
 float p = 3.1415926;
 
@@ -54,7 +54,9 @@ void setup(void) {
   Serial.begin(9600);
   Serial.print("hello!");
   display.begin();
+}
 
+void loop() {
   Serial.println("init");
   uint16_t time = millis();
   display.fillScreen(BLACK);
@@ -106,9 +108,6 @@ void setup(void) {
   
   Serial.println("done");
   delay(1000);
-}
-
-void loop() {
 }
 
 void testlines(uint16_t color) {
