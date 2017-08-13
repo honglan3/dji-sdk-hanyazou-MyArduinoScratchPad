@@ -43,3 +43,6 @@
 [submodule "libraries/Touch-Screen-Library"]
 	path = libraries/Touch-Screen-Library
 	url = https://github.com/adafruit/Touch-Screen-Library
+[submodule "libraries/MCUFRIEND_kbv"]
+	path = libraries/MCUFRIEND_kbv
+	url = https://github.com/prenticedavid/MCUFRIEND_kbv
