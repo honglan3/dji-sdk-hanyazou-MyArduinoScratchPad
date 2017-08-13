@@ -40,3 +40,6 @@
 [submodule "libraries/Adafruit_FT6206_Library"]
 	path = libraries/Adafruit_FT6206_Library
 	url = https://github.com/adafruit/Adafruit_FT6206_Library
+[submodule "libraries/Touch-Screen-Library"]
+	path = libraries/Touch-Screen-Library
+	url = https://github.com/adafruit/Touch-Screen-Library
