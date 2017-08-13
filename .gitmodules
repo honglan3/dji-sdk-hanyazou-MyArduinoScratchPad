@@ -46,3 +46,6 @@
 [submodule "libraries/MCUFRIEND_kbv"]
 	path = libraries/MCUFRIEND_kbv
 	url = https://github.com/prenticedavid/MCUFRIEND_kbv
+[submodule "libraries/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino"]
+	path = libraries/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino
+	url = https://github.com/adafruit/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino
