@@ -22,6 +22,7 @@
 
 //#define HAVE_SERIAL1
 //#define HAVE_SERIAL2
+//#define HAVE_SERIAL_USB
 #if 1
 #undef LED_BUILTIN
 #define LED_BUILTIN 2  // for SAM D11C
@@ -46,6 +47,10 @@ void setup() {
   Serial2.begin(9600);
   Serial2.println("Hello!");
 #endif
+#ifdef HAVE_SERIAL_USB
+  SerialUSB.begin(9600);
+  SerialUSB.println("Hello!");
+#endif
 
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
@@ -59,6 +64,9 @@ void loop() {
 #endif
 #ifdef HAVE_SERIAL2
   Serial2.println("running... on serial 2");
+#endif
+#ifdef HAVE_SERIAL_USB
+  SerialUSB.println("running... on serial USB");
 #endif
   digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(1000);                       // wait for a second
