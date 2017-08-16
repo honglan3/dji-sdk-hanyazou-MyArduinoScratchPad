@@ -49,3 +49,6 @@
 [submodule "libraries/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino"]
 	path = libraries/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino
 	url = https://github.com/hanyazou/Adafruit-SSD1331-OLED-Driver-Library-for-Arduino
+[submodule "libraries/RTClib"]
+	path = libraries/RTClib
+	url = https://github.com/adafruit/RTClib
