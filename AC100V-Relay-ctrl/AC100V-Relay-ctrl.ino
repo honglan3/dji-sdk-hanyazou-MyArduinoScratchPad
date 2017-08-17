@@ -6,6 +6,7 @@
 #include <SPI.h>
 #include "Adafruit_MAX31855.h"
 
+//#define DBEUG_SERIAL_MONITOR
 //#define DEBUG_ON_OFF
 //#define DEBUG_FANCTRL
 
@@ -14,19 +15,23 @@
 #define MAXCS   7
 Adafruit_MAX31855 thermocouple(MAXCS);
 
-#define STAT_START 0
-#define STAT_RAMP 1
-#define STAT_SOAK 2
-#define STAT_REFLOW 3
-#define STAT_REFLOW2 4
-#define STAT_COOLDOWN 5
-#define STAT_END 6
+enum {
+  STAT_START,
+  STAT_PRECOOLDOWN,
+  STAT_PREHEAT,
+  STAT_SOAK,
+  STAT_REFLOW,
+  STAT_REFLOW2,
+  STAT_COOLDOWN,
+  STAT_END
+};
 
 int state;
 int count = 0;
-int target = 130;
-int target2 = 180;
-int target3 = 170;
+int target0 = 50;
+int target1 = 150;
+int target2 = 210;
+int target3 = 190;
 int upward_inertia = 12;
 int soaking_denominator = 2;
 int soaking_start;
@@ -35,7 +40,7 @@ int soaking_duration = 90;
 // the setup function runs once when you press reset or power the board
 void setup() {
   Serial.begin(9600);
-#ifdef DEBUG
+#ifdef DBEUG_SERIAL_MONITOR
   while (!Serial) delay(1); // wait for Serial on Leonardo/Zero, etc
   Serial.println("Hello!");
 #endif
@@ -48,24 +53,19 @@ void setup() {
   // wait for MAX chip to stabilize
   delay(500);
 
-#ifdef DEBUG
+#ifdef DBEUG_SERIAL_MONITOR
   // basic readout test, just print the current temp
   Serial.print("Internal Temp = ");
   Serial.println(thermocouple.readInternal());
 #endif
 
-  state = STAT_START;
+  state = STAT_PRECOOLDOWN;
 }
 
 // the loop function runs over and over again forever
 void loop() {
   bool heater_on = false;
   bool fan_on = false;
-
-  if (495 <= count) {
-    delay(1000);
-    return;
-  }
 
   count++;
   //Serial.print(count);
@@ -83,18 +83,18 @@ void loop() {
     heater_on = false;
   } else {
     switch (state) {
-    case STAT_START:
+    case STAT_PRECOOLDOWN:
       //Serial.print("0 "); 
-      if (count < 10) {
-        heater_on = false;
-      } else {
+      if (c < target0) {
         heater_on = true;
-        state = STAT_RAMP;
+        state = STAT_PREHEAT;
+      } else {
+        fan_on = true;
       }
       break;
-    case STAT_RAMP:
+    case STAT_PREHEAT:
       //Serial.print("10 "); 
-      if (c < target - upward_inertia) {
+      if (c < target1 - upward_inertia) {
         heater_on = true;
       } else {
         heater_on = false;
@@ -148,25 +148,28 @@ void loop() {
   heater_on = (count/3)%2;
 #endif
 
-  Serial.print(c);
-  Serial.print(" ");
-  Serial.print(heater_on ? "8 " : "3 ");
-  Serial.print(" ");
-  Serial.print(fan_on ? "15 " : "10 ");
-  Serial.print(target);
-  Serial.print(" ");
-  Serial.print(target2);
+  //if (count < 498) 
+  {
+    Serial.print(c);
+    Serial.print(" ");
+    Serial.print(heater_on ? "8 " : "3 ");
+    Serial.print(" ");
+    Serial.print(fan_on ? "15 " : "10 ");
+    Serial.print(target1);
+    Serial.print(" ");
+    Serial.print(target2);
 #ifdef DEBUG_FANCTRL
-  Serial.print(" ");
-  Serial.print(analogRead(A0)*5.0/1024*10);
-  Serial.print(" ");
-  Serial.print(analogRead(A1)*5.0/1024*10);
-  Serial.print(" ");
-  Serial.print(analogRead(A2)*5.0/1024*10);
-  Serial.print(" ");
-  Serial.print(analogRead(A3)*5.0/1024*10);
+    Serial.print(" ");
+    Serial.print(analogRead(A0)*5.0/1024*10);
+    Serial.print(" ");
+    Serial.print(analogRead(A1)*5.0/1024*10);
+    Serial.print(" ");
+    Serial.print(analogRead(A2)*5.0/1024*10);
+    Serial.print(" ");
+    Serial.print(analogRead(A3)*5.0/1024*10);
 #endif
-  Serial.println("");
+    Serial.println("");
+  }
 
   if (heater_on) {
     digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
