@@ -13,12 +13,12 @@ int target1 = 150;
 int target2 = 180;
 int target3 = 200;
 int upward_inertia1 = 20;
-int soaking_denominator = 2;
 int soaking_duration = 90;
 int upward_inertia3 = 15;
 int reflow_duration = 15;
 int reflow2_denominator = 3;
 int reflow2_duration = 30;
+double radiation_rate = 0.7;
 
 #define AC100RELAY 5
 #define FANCTRL 6
@@ -51,6 +51,10 @@ int soaking_start;
 int reflow_start;
 int reflow2_start;
 
+#define MEMSIZE 20
+float mem[MEMSIZE];
+int d0, d1, D;
+
 // the setup function runs once when you press reset or power the board
 void setup() {
   Serial.begin(9600);
@@ -76,6 +80,32 @@ void setup() {
   state = STAT_PRECOOLDOWN;
 }
 
+double temperatureTrend(double duration = MEMSIZE-1)
+{
+  int d;
+
+  d = (int)(duration + 0.5);
+  if (MEMSIZE-1 < d) {
+    d = MEMSIZE-1;
+  }
+
+#ifdef DBEUG_SERIAL_MONITOR
+  for (int i = 0; i < MEMSIZE; i++) {
+    Serial.print("mem[now-");
+    Serial.print(i);
+    Serial.print("] = ");
+    Serial.println(mem[(count - i)%MEMSIZE]);
+  }
+
+  Serial.print("cur temp=");
+  Serial.println(mem[count%MEMSIZE]);
+  Serial.print("old temp=");
+  Serial.println(mem[(count - d)%MEMSIZE]);
+#endif
+
+  return ((double)(mem[count%MEMSIZE] - mem[(count - d)%MEMSIZE]) / d);
+}
+
 // the loop function runs over and over again forever
 void loop() {
   bool heater_on = false;
@@ -91,6 +121,8 @@ void loop() {
     delay(100);  
   }
   c /= 10;
+
+  mem[count % MEMSIZE] = c;
 
   if (isnan(c)) {
     Serial.println("Something wrong with thermocouple!");
@@ -112,6 +144,21 @@ void loop() {
         heater_on = false;
         state = STAT_SOAK;
         soaking_start = count;
+        double tr_max = temperatureTrend(5) + radiation_rate;
+        double tr_tgt = (double)(target2 - target1) / soaking_duration + radiation_rate;
+        d0 = 100;
+        d1 = tr_max / tr_tgt * d0;
+        D = d1/2;
+#ifdef DBEUG_SERIAL_MONITOR
+	Serial.print("temperatureTrend()=");
+	Serial.println(t);
+	Serial.print("target rate=");
+	Serial.println((double)(target2 - target1) / soaking_duration);
+	Serial.print("d0=");
+	Serial.println(d0);
+	Serial.print("d1=");
+	Serial.println(d1);
+#endif
       }
       break;
     case STAT_SOAK:
@@ -162,7 +209,12 @@ void loop() {
   }
 
   if (state == STAT_SOAK && heater_on) {
-    heater_on = (count % soaking_denominator) == 0 ? true : false;
+    if ((D -= d0) < 0) {
+      D += d1;
+      heater_on = true;
+    } else {
+      heater_on = false;
+    }
   }
   if (state == STAT_REFLOW2 && heater_on) {
     heater_on = (count % reflow2_denominator) == 0 ? true : false;
