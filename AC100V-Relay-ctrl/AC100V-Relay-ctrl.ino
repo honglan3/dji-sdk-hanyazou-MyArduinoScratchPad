@@ -6,36 +6,50 @@
 #include <SPI.h>
 #include "Adafruit_MAX31855.h"
 
-//#define DBEUG_SERIAL_MONITOR
-//#define DEBUG_ON_OFF
-//#define DEBUG_FANCTRL
+/* ========================================================================= */
+
+int target0 = 60;
+int target1 = 150;
+int target2 = 180;
+int target3 = 200;
+int upward_inertia1 = 20;
+int soaking_denominator = 2;
+int soaking_duration = 90;
+int upward_inertia3 = 15;
+int reflow_duration = 15;
+int reflow2_denominator = 3;
+int reflow2_duration = 30;
 
 #define AC100RELAY 5
 #define FANCTRL 6
 #define MAXCS   7
-Adafruit_MAX31855 thermocouple(MAXCS);
+
+//#define DBEUG_SERIAL_MONITOR
+//#define DEBUG_ON_OFF
+//#define DEBUG_FANCTRL
+//#define DEBUG_STATE
+
+/* ========================================================================= */
 
 enum {
   STAT_START,
   STAT_PRECOOLDOWN,
   STAT_PREHEAT,
   STAT_SOAK,
+  STAT_SOAK2,
   STAT_REFLOW,
   STAT_REFLOW2,
   STAT_COOLDOWN,
+  STAT_COOLDOWN2,
   STAT_END
 };
 
+Adafruit_MAX31855 thermocouple(MAXCS);
 int state;
 int count = 0;
-int target0 = 50;
-int target1 = 150;
-int target2 = 210;
-int target3 = 190;
-int upward_inertia = 12;
-int soaking_denominator = 2;
 int soaking_start;
-int soaking_duration = 90;
+int reflow_start;
+int reflow2_start;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -84,7 +98,6 @@ void loop() {
   } else {
     switch (state) {
     case STAT_PRECOOLDOWN:
-      //Serial.print("0 "); 
       if (c < target0) {
         heater_on = true;
         state = STAT_PREHEAT;
@@ -93,8 +106,7 @@ void loop() {
       }
       break;
     case STAT_PREHEAT:
-      //Serial.print("10 "); 
-      if (c < target1 - upward_inertia) {
+      if (c < target1 - upward_inertia1) {
         heater_on = true;
       } else {
         heater_on = false;
@@ -103,31 +115,41 @@ void loop() {
       }
       break;
     case STAT_SOAK:
-      //Serial.print("20 "); 
-      heater_on = true;
+      if (c < target2) {
+          heater_on = true;
+      }
       if (soaking_start + soaking_duration < count) {
+        state = STAT_SOAK2;
+      }
+      break;
+    case STAT_SOAK2:
+      if (c < target2) {
         state = STAT_REFLOW;
+        reflow_start = count;
       }
       break;
     case STAT_REFLOW:
-      //Serial.print("30 "); 
-      if (c < target2) {
+      if (c < target3 - upward_inertia3 || count <= reflow_start + reflow_duration) {
         heater_on = true;
       } else {
-        heater_on = false;
         state = STAT_REFLOW2;
+        reflow2_start = count;
       }
       break;
     case STAT_REFLOW2:
-      //Serial.print("30 "); 
-      heater_on = false;
-      if (c < target3) {
+      heater_on = true;
+      if (reflow2_start + reflow2_duration < count) {
+        heater_on = false;
         state = STAT_COOLDOWN;
       }
       break;
     case STAT_COOLDOWN:
-      //Serial.print("40 "); 
-      if (c < 50) {
+      if (c < target2) {
+        state = STAT_COOLDOWN2;
+      }
+      break;
+    case STAT_COOLDOWN2:
+      if (c < target0) {
         state = STAT_END;
       } else {
         fan_on = true;
@@ -142,14 +164,16 @@ void loop() {
   if (state == STAT_SOAK && heater_on) {
     heater_on = (count % soaking_denominator) == 0 ? true : false;
   }
+  if (state == STAT_REFLOW2 && heater_on) {
+    heater_on = (count % reflow2_denominator) == 0 ? true : false;
+  }
 
 #ifdef DEBUG_ON_OFF
   fan_on = (count/10)%2;
   heater_on = (count/3)%2;
 #endif
 
-  //if (count < 498) 
-  {
+  if (state != STAT_END) {
     Serial.print(c);
     Serial.print(" ");
     Serial.print(heater_on ? "8 " : "3 ");
@@ -157,7 +181,11 @@ void loop() {
     Serial.print(fan_on ? "15 " : "10 ");
     Serial.print(target1);
     Serial.print(" ");
-    Serial.print(target2);
+    Serial.print(target3);
+#ifdef DEBUG_STATE
+    Serial.print(" ");
+    Serial.print(state * 5 + 15); 
+#endif
 #ifdef DEBUG_FANCTRL
     Serial.print(" ");
     Serial.print(analogRead(A0)*5.0/1024*10);
