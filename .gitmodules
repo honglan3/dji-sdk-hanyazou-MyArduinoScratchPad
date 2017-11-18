@@ -52,3 +52,6 @@
 [submodule "libraries/RTClib"]
 	path = libraries/RTClib
 	url = https://github.com/adafruit/RTClib
+[submodule "libraries/S25FLx"]
+	path = libraries/S25FLx
+	url = https://github.com/BleepLabs/S25FLx.git
