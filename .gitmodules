@@ -58,3 +58,6 @@
 [submodule "libraries/SPIFlash"]
 	path = libraries/SPIFlash
 	url = https://github.com/hanyazou/SPIFlash.git
+[submodule "libraries/Adafruit_SPIFlash"]
+	path = libraries/Adafruit_SPIFlash
+	url = https://github.com/hanyazou/Adafruit_SPIFlash.git
