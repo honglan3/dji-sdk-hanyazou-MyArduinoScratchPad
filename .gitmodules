@@ -55,3 +55,6 @@
 [submodule "libraries/S25FLx"]
 	path = libraries/S25FLx
 	url = https://github.com/BleepLabs/S25FLx.git
+[submodule "libraries/SPIFlash"]
+	path = libraries/SPIFlash
+	url = https://github.com/hanyazou/SPIFlash.git
