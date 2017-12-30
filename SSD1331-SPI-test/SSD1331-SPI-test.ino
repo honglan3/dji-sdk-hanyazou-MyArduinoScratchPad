@@ -21,7 +21,7 @@
 #define sclk 13
 #define mosi 11
 #define cs   10
-#define rst  9
+#define rst  8
 #define dc   7
 
 
