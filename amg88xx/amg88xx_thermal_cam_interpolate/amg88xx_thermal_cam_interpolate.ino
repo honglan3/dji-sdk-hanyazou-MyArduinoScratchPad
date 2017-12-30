@@ -18,8 +18,8 @@
   BSD license, all text above must be included in any redistribution
  ***************************************************************************/
 
-//#define USE_ILI9341
-#define USE_SSD1331
+#define USE_ILI9341
+//#define USE_SSD1331
 
 #include <Adafruit_GFX.h>    // Core graphics library
 #ifdef USE_ILI9341
@@ -89,10 +89,11 @@
 #ifdef USE_SW_SPI
   Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, MOSI, SCK);
 #else
-  Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
+  Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 #endif
 #define BLACK ILI9341_BLACK
 #define WHITE ILI9341_WHITE
+#define MIRROR_X
 #endif
 
 #ifdef USE_SSD1331
