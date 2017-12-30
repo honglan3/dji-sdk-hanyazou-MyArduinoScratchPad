@@ -18,8 +18,16 @@
   BSD license, all text above must be included in any redistribution
  ***************************************************************************/
 
+//#define USE_ILI9341
+#define USE_SSD1331
+
 #include <Adafruit_GFX.h>    // Core graphics library
+#ifdef USE_ILI9341
 #include <Adafruit_ILI9341.h>
+#endif
+#ifdef USE_SSD1331
+#include <Adafruit_SSD1331.h>
+#endif
 #include <SPI.h>
 
 #include <Wire.h>
@@ -45,8 +53,9 @@
 #endif
 #ifdef ARDUINO_SAMD_FEATHER_M0
    #define STMPE_CS 6
-   #define TFT_CS   9
-   #define TFT_DC   10
+   #define TFT_CS   10
+   #define TFT_DC   7
+   #define TFT_RST  8
    #define SD_CS    5
 #endif
 #ifdef TEENSYDUINO
@@ -73,10 +82,26 @@
    #define TFT_DC   10
    #define SD_CS    5
    
+   #define USE_SW_SPI
+#endif
+
+#ifdef USE_ILI9341
+#ifdef USE_SW_SPI
   Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, MOSI, SCK);
 #else
   Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
+#endif
+#define BLACK ILI9341_BLACK
+#define WHITE ILI9341_WHITE
+#endif
 
+#ifdef USE_SSD1331
+  Adafruit_SSD1331 tft = Adafruit_SSD1331(TFT_CS, TFT_DC, TFT_RST);
+#define BLACK 0x0000
+#define WHITE 0xffff
+#define MIRROR_X
+//#define MIRROR_Y
+#define MAXIMIZE_DISPLAY
 #endif
 
 //Comment this out to remove the text overlay
@@ -143,7 +168,7 @@ void setup() {
 
   tft.begin();
   tft.setRotation(3);
-  tft.fillScreen(ILI9341_BLACK);
+  tft.fillScreen(BLACK);
     
   // default settings
   if (!amg.begin()) {
@@ -173,7 +198,11 @@ void loop() {
   interpolate_image(pixels, AMG_ROWS, AMG_COLS, dest_2d, INTERPOLATED_ROWS, INTERPOLATED_COLS);
   Serial.print("Interpolation took "); Serial.print(millis()-t); Serial.println(" ms");
 
+#ifdef MAXIMIZE_DISPLAY
+  uint16_t boxsize = max(tft.width() / INTERPOLATED_COLS, tft.height() / INTERPOLATED_COLS);
+#else
   uint16_t boxsize = min(tft.width() / INTERPOLATED_COLS, tft.height() / INTERPOLATED_COLS);
+#endif
   
   drawpixels(dest_2d, INTERPOLATED_ROWS, INTERPOLATED_COLS, boxsize, boxsize, false);
 
@@ -182,6 +211,15 @@ void loop() {
 
 void drawpixels(float *p, uint8_t rows, uint8_t cols, uint8_t boxWidth, uint8_t boxHeight, boolean showVal) {
   int colorTemp;
+  int offsx, offsy;
+  offsx = (tft.width() - boxWidth * rows) / 2;
+  offsy = (tft.height() - boxHeight * cols) / 2;
+#ifdef MIRROR_X
+  offsx *= -1;
+#endif
+#ifdef MIRROR_Y
+  offsy *= -1;
+#endif
   for (int y=0; y<rows; y++) {
     for (int x=0; x<cols; x++) {
       float val = get_point(p, rows, cols, x, y);
@@ -194,11 +232,20 @@ void drawpixels(float *p, uint8_t rows, uint8_t cols, uint8_t boxWidth, uint8_t 
       //draw the pixels!
       uint16_t color;
       color = val * 2;
-      tft.fillRect(40+boxWidth * x, boxHeight * y, boxWidth, boxHeight, camColors[colorIndex]);
+      int sx, sy;
+      sx = boxWidth * x;
+      sy = boxHeight * y;
+#ifdef MIRROR_X
+      sx = tft.width() - boxWidth - sx;
+#endif
+#ifdef MIRROR_Y
+      sy = tft.height() - boxHeight - sy;
+#endif
+      tft.fillRect(sx + offsx, sy + offsy, boxWidth, boxHeight, camColors[colorIndex]);
         
       if (showVal) {
         tft.setCursor(boxWidth * y + boxWidth/2 - 12, 40 + boxHeight * x + boxHeight/2 - 4);
-        tft.setTextColor(ILI9341_WHITE);  tft.setTextSize(1);
+        tft.setTextColor(WHITE);  tft.setTextSize(1);
         tft.print(val,1);
       }
     } 
