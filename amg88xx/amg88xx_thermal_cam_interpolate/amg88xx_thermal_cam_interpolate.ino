@@ -85,6 +85,12 @@
    #define USE_SW_SPI
 #endif
 
+#if !defined(TFT_CS)
+   #define TFT_CS   10
+   #define TFT_DC   7
+   #define TFT_RST  8
+#endif
+
 #ifdef USE_ILI9341
 #ifdef USE_SW_SPI
   Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, MOSI, SCK);
