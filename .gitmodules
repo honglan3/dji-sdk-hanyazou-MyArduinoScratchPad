@@ -64,3 +64,6 @@
 [submodule "libraries/Adafruit_AMG88xx"]
 	path = libraries/Adafruit_AMG88xx
 	url = https://github.com/adafruit/Adafruit_AMG88xx.git
+[submodule "libraries/SparkFun_BME280_Arduino_Library"]
+	path = libraries/SparkFun_BME280_Arduino_Library
+	url = https://github.com/sparkfun/SparkFun_BME280_Arduino_Library.git
