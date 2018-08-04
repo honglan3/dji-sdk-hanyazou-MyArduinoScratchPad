@@ -76,3 +76,6 @@
 [submodule "libraries/TSL2561_Luminosity_Sensor_BOB"]
 	path = libraries/TSL2561_Luminosity_Sensor_BOB
 	url = https://github.com/sparkfun/TSL2561_Luminosity_Sensor_BOB.git
+[submodule "libraries/SparkFun_Micro_OLED_Arduino_Library"]
+	path = libraries/SparkFun_Micro_OLED_Arduino_Library
+	url = https://github.com/sparkfun/SparkFun_Micro_OLED_Arduino_Library.git
