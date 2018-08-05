@@ -27,13 +27,13 @@
 #define PIN_RESET 9  // Connect RST to pin 9
 #define PIN_DC    8  // Connect DC to pin 8
 #define PIN_CS    10 // Connect CS to pin 10
-#define DC_JUMPER 0
+#define DC_JUMPER 1
 
 //////////////////////////////////
 // MicroOLED Object Declaration //
 //////////////////////////////////
-MicroOLED oled(PIN_RESET, PIN_DC, PIN_CS); // SPI declaration
-//MicroOLED oled(PIN_RESET, DC_JUMPER);    // I2C declaration
+//MicroOLED oled(PIN_RESET, PIN_DC, PIN_CS); // SPI declaration
+MicroOLED oled(PIN_RESET, DC_JUMPER);    // I2C declaration
 
 void setup()
 {
