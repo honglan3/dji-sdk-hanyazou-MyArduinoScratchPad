@@ -79,3 +79,6 @@
 [submodule "libraries/SparkFun_Micro_OLED_Arduino_Library"]
 	path = libraries/SparkFun_Micro_OLED_Arduino_Library
 	url = https://github.com/sparkfun/SparkFun_Micro_OLED_Arduino_Library.git
+[submodule "libraries/FUTABA_SBUS.git"]
+	path = libraries/FUTABA_SBUS.git
+	url = https://github.com/mikeshub/FUTABA_SBUS.git
