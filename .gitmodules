@@ -79,6 +79,3 @@
 [submodule "libraries/SparkFun_Micro_OLED_Arduino_Library"]
 	path = libraries/SparkFun_Micro_OLED_Arduino_Library
 	url = https://github.com/sparkfun/SparkFun_Micro_OLED_Arduino_Library.git
-[submodule "libraries/SBUS"]
-	path = libraries/SBUS
-	url = https://github.com/zendes/SBUS.git
