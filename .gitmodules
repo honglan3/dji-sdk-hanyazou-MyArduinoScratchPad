@@ -82,3 +82,6 @@
 [submodule "libraries/FUTABA_SBUS.git"]
 	path = libraries/FUTABA_SBUS.git
 	url = https://github.com/mikeshub/FUTABA_SBUS.git
+[submodule "libraries/Adafruit_nRF52_Arduino"]
+	path = libraries/Adafruit_nRF52_Arduino
+	url = https://github.com/adafruit/Adafruit_nRF52_Arduino.git
