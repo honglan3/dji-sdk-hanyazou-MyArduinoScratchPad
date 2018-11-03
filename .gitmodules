@@ -85,3 +85,9 @@
 [submodule "libraries/Adafruit_nRF52_Arduino"]
 	path = libraries/Adafruit_nRF52_Arduino
 	url = https://github.com/adafruit/Adafruit_nRF52_Arduino.git
+[submodule "libraries/Keypad"]
+	path = libraries/Keypad
+	url = https://github.com/Chris--A/Keypad.git
+[submodule "libraries/Adafruit_INA219"]
+	path = libraries/Adafruit_INA219
+	url = https://github.com/adafruit/Adafruit_INA219.git
