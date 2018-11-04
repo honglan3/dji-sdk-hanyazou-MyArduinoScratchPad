@@ -21,6 +21,7 @@
 
 BLEHidAdafruit blehid;
 
+#if 0
 // Array of pins and its keycode
 // For keycode definition see BLEHidGeneric.h
 uint8_t pins[]    = { A0, A1, A2, A3, A4, A5 };
@@ -31,8 +32,66 @@ uint8_t pincount = sizeof(pins)/sizeof(pins[0]);
 // Modifier keys, only take cares of Shift
 // ATL, CTRL, CMD keys are left for user excersie.
 uint8_t shiftPin = 11;
+#endif
 
-bool keyPressedPreviously = false;
+const byte nrows = 4;
+const byte ncols = 6;
+#if defined ARDUINO_NRF52_FEATHER
+byte rowPins[] = {7, 27, 30, 16}; //connect to the row pinouts of the keypad
+byte columnPins[] = {5, 4, 3, 2, 12, 14}; //connect to the column pinouts of the keypad
+#else // ARDUINO_NRF52_FEATHER
+byte rowPins[] = {4, 5, 6, 8}; //connect to the row pinouts of the keypad
+byte columnPins[] = {21, 20, 19, 18, 15, 14}; //connect to the column pinouts of the keypad
+#endif
+
+#define MOD_LCTRL	(KEYBOARD_MODIFIER_LEFTCTRL << 8)
+#define MOD_LSHIFT	(KEYBOARD_MODIFIER_LEFTSHIFT << 8)
+#define MOD_LALT	(KEYBOARD_MODIFIER_LEFTALT << 8)
+#define MOD_LGUI	(KEYBOARD_MODIFIER_LEFTGUI << 8)
+#define MOD_RCTRL	(KEYBOARD_MODIFIER_RIGHTCTRL << 8)
+#define MOD_RSHIFT	(KEYBOARD_MODIFIER_RIGHTSHIFT << 8)
+#define MOD_RALT	(KEYBOARD_MODIFIER_RIGHTALT << 8)
+#define MOD_RGUI	(KEYBOARD_MODIFIER_RIGHTGUI << 8)
+#define IS_MODIFIER(s)	((s)&0xff00)
+#define GET_MODIFIER(s)	(((s)&0xff00)>>8)
+
+int symbols[nrows][ncols] = {
+  HID_KEY_Q, HID_KEY_W, HID_KEY_E, HID_KEY_R, HID_KEY_T, HID_KEY_Y,
+  HID_KEY_A, HID_KEY_S, HID_KEY_D, HID_KEY_F, HID_KEY_G, HID_KEY_H,
+  HID_KEY_Z, HID_KEY_X, HID_KEY_C, HID_KEY_V, HID_KEY_B, HID_KEY_N,
+  HID_KEY_NONE, HID_KEY_NONE, HID_KEY_NONE, MOD_LCTRL, MOD_LSHIFT, HID_KEY_RETURN,
+};
+
+void scanKeys(byte scandata[nrows][ncols]) {
+  // Re-intialize the row pins. Allows sharing these pins with other hardware.
+  for (byte r=0; r<nrows; r++) {
+    pinMode(rowPins[r], INPUT_PULLDOWN);
+    digitalWrite(rowPins[r], LOW);
+  }
+
+  // bitMap stores ALL the keys that are being pressed.
+  for (byte c=0; c<ncols; c++) {
+    pinMode(columnPins[c], OUTPUT);
+    digitalWrite(columnPins[c], HIGH);  // Begin column pulse output.
+    for (byte r=0; r<nrows; r++) {
+      scandata[r][c] = digitalRead(rowPins[r]);
+      delay(1);
+    }
+
+    // Set pin to high impedance input. Effectively ends column pulse.
+    digitalWrite(columnPins[c], LOW);
+    pinMode(columnPins[c], INPUT);
+  }
+
+#if 0
+  for (byte c=0; c<ncols; c++) {
+    for (byte r=0; r<nrows; r++) {
+      Serial.print(scandata[r][c]?"x":"_");
+    }
+  }
+  Serial.println();
+#endif
+}
 
 void setup() 
 {
@@ -53,16 +112,7 @@ void setup()
   Bluefruit.begin();
   // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
   Bluefruit.setTxPower(4);
-  Bluefruit.setName("Bluefruit52");
-
-  // set up pin as input
-  for (uint8_t i=0; i<pincount; i++)
-  {
-    pinMode(pins[i], INPUT_PULLUP);
-  }
-
-  // set up modifier key
-  pinMode(shiftPin, INPUT_PULLUP);
+  Bluefruit.setName("Hanyaduino nRF52");
 
   /* Start BLE HID
    * Note: Apple requires BLE device must have min connection interval >= 20m
@@ -114,48 +164,53 @@ void startAdv(void)
   Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds
 }
 
+bool keyPressedPreviously = false;
+byte prev_scandata[nrows][ncols];
+
 void loop()
 {
   /*-------------- San Pin Array and send report ---------------------*/
+  byte scandata[nrows][ncols];
   bool anyKeyPressed = false;
-
   uint8_t modifier = 0;
   uint8_t count=0;
   uint8_t keycode[6] = { 0 };
 
+  scanKeys(scandata);
+
   // scan mofidier key (only SHIFT), user implement ATL, CTRL, CMD if needed
-  if ( 0 == digitalRead(shiftPin) )
-  {
-    modifier |= KEYBOARD_MODIFIER_LEFTSHIFT;
+  for (byte c=0; c<ncols; c++) {
+    for (byte r=0; r<nrows; r++) {
+      if (scandata[r][c] && IS_MODIFIER(symbols[r][c])) {
+        modifier |= GET_MODIFIER(symbols[r][c]);
+      }
+    }
   }
 
   // scan normal key and send report
-  for(uint8_t i=0; i < pincount; i++)
-  {
-    if ( 0 == digitalRead(pins[i]) )
-    {
-      // if pin is active (low), add its hid code to key report
-      keycode[count++] = hidcode[i];
+  for (byte c=0; c<ncols; c++) {
+    for (byte r=0; r<nrows; r++) {
+      if (scandata[r][c] && !IS_MODIFIER(symbols[r][c])) {
+        keycode[count++] = symbols[r][c];
 
-      // 6 is max keycode per report
-      if ( count == 6)
-      {
-        blehid.keyboardReport(modifier, keycode);
+        // used later
+        anyKeyPressed = true;
+        keyPressedPreviously = true;
 
-        // reset report
-        count = 0;
-        memset(keycode, 0, 6);
+        // 6 is max keycode per report
+        if ( count == 6) {
+          blehid.keyboardReport(modifier, keycode);
+
+          // reset report
+          count = 0;
+          memset(keycode, 0, 6);
+        }
       }
-
-      // used later
-      anyKeyPressed = true;
-      keyPressedPreviously = true;
     }    
   }
 
   // Send any remaining keys (not accumulated up to 6)
-  if ( count )
-  {
+  if ( count ) {
     blehid.keyboardReport(modifier, keycode);
   }
 
@@ -165,9 +220,12 @@ void loop()
   if ( !anyKeyPressed && keyPressedPreviously )
   {
     keyPressedPreviously = false;
+    //Serial.println("blehid.keyRelease()");
     blehid.keyRelease();
   }  
-  
+
+  memcpy(prev_scandata, scandata, sizeof(scandata));
+
   // Poll interval
   delay(10);
 }
