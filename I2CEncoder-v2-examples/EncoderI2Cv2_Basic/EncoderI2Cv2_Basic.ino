@@ -1,6 +1,10 @@
 #include <Wire.h>
 #include "i2cEncoderLibV2.h"
 
+/*
+ * https://github.com/Fattoresaimon/I2CEncoderV2
+ */
+
 /*This is a basic example for using the I2C Encoder V2
   The counter is set to work between +10 to -10, at every encoder click the counter value is printed on the terminal.
   It's also printet when the push button is pressed, or released or double pushed.
@@ -16,7 +20,7 @@
 
 const int IntPin = A3; /* Definition of the interrupt pin*/
 //Class initialization with the I2C addresses
-i2cEncoderLibV2 Encoder(0x01); /* In this case i'm using the I2C address 1, change according to your device*/
+i2cEncoderLibV2 Encoder(0x15); /* In this case i'm using the I2C address 1, change according to your device*/
 
 
 void setup(void)
@@ -24,6 +28,7 @@ void setup(void)
   pinMode(IntPin, INPUT);
 
   Serial.begin(115200);
+  while (!Serial);
   Serial.println("**** I2C Encoder V2 basic example ****");
   /*
       INT_DATA= The register are considered integer.
@@ -49,7 +54,9 @@ void setup(void)
 
 void loop() {
   uint8_t enc_cnt;
-  if (digitalRead(IntPin) == LOW) {
+  // if (digitalRead(IntPin) == LOW) {
+  delay(30);
+  {
     if ( Encoder.updateStatus()) {
       if ( Encoder.readStatus(RINC)) {
         Serial.print("Increment: ");
