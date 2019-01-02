@@ -91,3 +91,6 @@
 [submodule "libraries/Adafruit_INA219"]
 	path = libraries/Adafruit_INA219
 	url = https://github.com/adafruit/Adafruit_INA219.git
+[submodule "libraries/I2CEncoderV2"]
+	path = libraries/I2CEncoderV2
+	url = https://github.com/Fattoresaimon/I2CEncoderV2.git
